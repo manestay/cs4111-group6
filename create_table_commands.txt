@@ -9,6 +9,7 @@ PRIMARY KEY(sid)
 
 CREATE TABLE Users_Belong_To (
 uid CHAR(10),
+uname VARCHAR(25),
 year VARCHAR(10), --UG1, UG2, G, etc.
 sid CHAR(10),
 email VARCHAR(30) UNIQUE NOT NULL,
