@@ -1,8 +1,8 @@
 CREATE TABLE Schools (
-sname CHAR(20) NOT NULL,
-sid CHAR(10),
-city CHAR(10),
-address VARCHAR(20),
+sname VARCHAR(50) NOT NULL,
+sid VARCHAR(10),
+city VARCHAR(10),
+address VARCHAR(50),
 PRIMARY KEY(sid)
 );
 
@@ -18,8 +18,8 @@ FOREIGN KEY(sid) REFERENCES Schools
 );
 
 CREATE TABLE Establishments (
-eid CHAR(10),
-ename VARCHAR(20),
+eid VARCHAR(10),
+ename VARCHAR(50),
 PRIMARY KEY(eid)
 );
 
