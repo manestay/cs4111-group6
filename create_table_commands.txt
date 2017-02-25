@@ -2,6 +2,7 @@ CREATE TABLE Schools (
 sname CHAR(20) NOT NULL,
 sid CHAR(10),
 city CHAR(10),
+email VARCHAR(30) UNIQUE NOT NULL,
 address VARCHAR(20),
 PRIMARY KEY(sid)
 );
