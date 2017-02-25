@@ -1,0 +1,76 @@
+CREATE TABLE Schools (
+sname CHAR(20) NOT NULL,
+sid CHAR(10),
+city CHAR(10),
+address VARCHAR(20),
+PRIMARY KEY(sid)
+);
+
+
+CREATE TABLE Users_Belong_To (
+uid CHAR(10),
+year VARCHAR(10), --UG1, UG2, G, etc.
+sname VARCHAR(20) NOT NULL,
+PRIMARY KEY(uid),
+FOREIGN KEY(sname) REFERENCES Schools
+);
+
+CREATE TABLE Establishments (
+eid CHAR(10),
+ename VARCHAR(20),
+PRIMARY KEY(eid)
+);
+
+CREATE TABLE Offer_Discounts (
+did CHAR(10),
+eid CHAR(10),
+notes VARCHAR(100),
+PRIMARY KEY(did),
+FOREIGN KEY(eid) REFERENCES Establishments
+);
+
+CREATE TABLE Benefit_From (
+sname VARCHAR(20),
+did CHAR(10),
+PRIMARY KEY(sname, did),
+FOREIGN KEY(sname) REFERENCES Schools,
+FOREIGN KEY(did) REFERENCES Offer_Discounts
+);
+
+CREATE TABLE Locations_Situated_In(
+eid CHAR(10),
+url VARCHAR(50),
+address VARCHAR(20),
+city VARCHAR(15),
+PRIMARY KEY(eid, url),
+FOREIGN KEY(eid) REFERENCES Establishments ON DELETE CASCADE
+);
+
+CREATE TABLE Percentage_Discounts(
+did CHAR(10),
+percent INTEGER CHECK (percent > 0 and percent <= 100),
+PRIMARY KEY(did),
+FOREIGN KEY(did) REFERENCES Offer_Discounts
+);
+
+CREATE TABLE Fixed_Val_Discounts(
+did CHAR(10),
+original_price REAL CHECK (original_price >= 0),
+student_price REAL,
+CHECK (original_price > student_price),
+PRIMARY KEY(did),
+FOREIGN KEY(did) REFERENCES Offer_Discounts
+);
+
+CREATE TABLE Categories (
+cname CHAR(10),
+PRIMARY KEY(cname)
+);
+
+CREATE TABLE Falls_Under (
+eid CHAR(10),
+cname VARCHAR(15) NOT NULL,
+PRIMARY KEY(eid, cname), 
+FOREIGN KEY(eid) REFERENCES Establishments,
+FOREIGN KEY(cname) REFERENCES Categories
+);
