@@ -2,7 +2,6 @@ CREATE TABLE Schools (
 sname CHAR(20) NOT NULL,
 sid CHAR(10),
 city CHAR(10),
-email VARCHAR(30) UNIQUE NOT NULL,
 address VARCHAR(20),
 PRIMARY KEY(sid)
 );
@@ -11,9 +10,10 @@ PRIMARY KEY(sid)
 CREATE TABLE Users_Belong_To (
 uid CHAR(10),
 year VARCHAR(10), --UG1, UG2, G, etc.
-sname VARCHAR(20) NOT NULL,
+sid CHAR(10),
+email VARCHAR(30) UNIQUE NOT NULL,
 PRIMARY KEY(uid),
-FOREIGN KEY(sname) REFERENCES Schools
+FOREIGN KEY(sid) REFERENCES Schools
 );
 
 CREATE TABLE Establishments (
