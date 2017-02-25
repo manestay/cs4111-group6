@@ -63,7 +63,7 @@ FOREIGN KEY(did) REFERENCES Offer_Discounts
 );
 
 CREATE TABLE Categories (
-cname CHAR(10),
+cname VARCHAR(10),
 PRIMARY KEY(cname)
 );
 
