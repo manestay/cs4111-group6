@@ -1,0 +1,3 @@
+psql -U bl2557 -h 104.196.135.151 -d proj1part2
+sealion6
+8911
