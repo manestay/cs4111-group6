@@ -1,5 +1,5 @@
 import os
-from form import LoginForm
+from forms import LoginForm, RegistrationForm
 from flask import Flask, request, render_template, g, redirect, Response, flash, url_for
 from sqlalchemy import *
 
@@ -42,15 +42,16 @@ def login():
     u_query = g.conn.execute("SELECT * FROM users_belong_to U "
                            "WHERE U.email = '{}'".format(email))
     u = u_query.first()
-    s_query = g.conn.execute("SELECT S.sname, S.sid "
+    '''s_query = g.conn.execute("SELECT S.sname, S.sid "
                            "FROM schools S, users_belong_to U "
                            "WHERE U.sid = S.sid AND "
                            "U.uid='{}'".format(u[0]))
-    s = s_query.first()
+    s = s_query.first()'''
                            
-    cache.update({'uid':u[1], 'year':u[2], 'sid': u[3], 'email': u[4],
-                 'school': s[0]})
+    cache.update({'uid': u[0], 'name': u[1], 'year': u[2], 'sid': u[3],
+                  'email': u[4]}) #'school': s[0]})
     flash('you have successfully logged in')
+    return redirect(url_for('index'))
   return render_template('login.html', form=form)
         
 
@@ -64,7 +65,34 @@ def logout():
   else:
     flash('Not logged in yet.')
   return redirect(url_for('index'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+  global cache
+  if 'email' in cache:
+    flash('You are already logged in. Please log out before registering another account.')
+    return redirect(url_for('index'))
+
+  form = RegistrationForm(request.form)
+  
+  if request.method == 'POST' and form.validate():
+    email = form.email.data
+    user_id = form.user_id.data
+    name = form.name.data
+    year = form.year.data
+    password = form.password.data
+    school_id = form.school_id.data
     
+    u_query = g.conn.execute("INSERT INTO users_belong_to "
+        "VALUES ('{}','{}','{}','{}','{}','{}')".format(
+        user_id, name, year, school_id, email, password))
+                           
+    cache.update({'uid':user_id, 'name':name, 'year': year,
+                  'sid': school_id, 'email': email})
+    flash('you have succesfully registered, and are logged in')
+    return redirect(url_for('/'))
+  return render_template('registration.html', form=form)
+  
 @app.route('/')
 def index():
   cursor = g.conn.execute("SELECT * FROM users_belong_to")

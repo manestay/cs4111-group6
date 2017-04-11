@@ -1,0 +1,18 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "layout.html" %}
+{% block body %}
+<form method=post>
+  <dl>
+    {{ render_field(form.name) }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.user_id) }}
+    {{ render_field(form.year) }}
+    {{ render_field(form.school_id) }}
+    {{ render_field(form.password) }}
+    {{ render_field(form.confirm) }}
+  </dl>
+  <p><input type=submit value=Register>
+</form>
+
+<p><a href="/">Go back to the index</a></p>
+{% endblock %}
