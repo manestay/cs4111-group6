@@ -5,9 +5,14 @@
       font-family: arial;
     }
   </style>
-
-
-<body>
+{% extends "layout.html" %}
+{% block body %}
+  {% if 'email' in cache %}
+    {{'you are logged in as {}'.format(cache) | safe }}
+    <p><a href="logout">Logout</a></p>
+  {% else %}
+    <p><a href="login">Go to the login page</a></p>
+  {% endif %}
   <h1>Some famous Computer Scientists</h1>
   <div>{{data}}</div>
 
@@ -17,13 +22,10 @@
     {% endfor %}
   </div>
 
-<p><a href="another">Go to the other page</a></p>
-
 <form method="POST" action="/add">
 <p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
 </form>
 
-</body>
-
+{% endblock %}
 
 </html>

@@ -1,0 +1,13 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "layout.html" %}
+{% block body %}
+<form method=post>
+  <dl>
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+  </dl>
+  <p><input type=submit value=Login>
+</form>
+
+<p><a href="/">Go back to the index</a></p>
+{% endblock %}
