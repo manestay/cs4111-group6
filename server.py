@@ -97,15 +97,13 @@ def register():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-  form = SearchForm()
+  form = SearchForm(request.form)
   res = g.conn.execute("SELECT S.sid, S.sname FROM schools S")
   res1 = g.conn.execute("SELECT C.cname FROM categories C")
   form.school_id.choices = [('','any school')] + [(s[0],s[1]) for s in res]
   form.category.choices = [('','all categories')] + [(s[0],s[0]) for s in res1]
   return render_template('search.html', form=form)
-  
-  if request.method == 'POST' and form.validate():
-    pass
+
 
 @app.route('/account', methods=['GET', 'POST'])
 def account():

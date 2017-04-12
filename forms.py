@@ -1,5 +1,4 @@
-from wtforms import Form, RadioField, StringField, PasswordField, SelectField, \
-                    BooleanField, validators
+from wtforms import Form, RadioField, StringField, PasswordField, SelectField, BooleanField, validators
 from wtforms.fields.html5 import IntegerRangeField
 
 schools = [('1','Columbia'),('2','NYU'), ('3','Fordham'),
@@ -98,19 +97,17 @@ class SearchForm(Form): #for advanced search
   school_id = SelectField('School')
   category = SelectField('Category')
   show = BooleanField('Also show establishments without active discounts')
-  check = BooleanField('Free discounts only')
+  check = BooleanField('Free deals only')
+  print("hello123")
+
   def validate(self):
     from server import engine
     conn = engine.connect()
+    print("hello")
     if not super(SearchForm, self).validate():
       return False
-    res = conn.execute("SELECT U.email FROM users_belong_to U WHERE U.email = '{}' AND U.password"
-                       "='{}'".format(self.email.data, self.password.data))
-    if res.rowcount == 0: # given email and password not in database
-      self.email.errors.append('email and/or password not found')
-      conn.close()
-      return False
+    res = conn.execute("SELECT E2.ename FROM Establishments E2 NATURAL JOIN Discounts_Offered D NATURAL JOIN benefit_from B NATURAL JOIN Schools S WHERE S.sid = '{}'".format(self.school_id.data))
+    for row in res:
+        print("ename:", row['ename'])
     conn.close()
     return True
-    
-
