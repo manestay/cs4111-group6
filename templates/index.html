@@ -7,8 +7,8 @@
   </style>
 {% extends "layout.html" %}
 {% block body %}
-  {% if 'email' in cache %}
-    {{'you are logged in as {}'.format(cache['name']) | safe }}
+  {% if 'email' in session %}
+    {{'you are logged in as {}'.format(session['name']) | safe }}
     <a href="account"> Manage Account</a> |
     <a href="logout">Logout</a>
   {% else %}
@@ -16,7 +16,7 @@
   {% endif %}
   <h1>Welcome to the Student Discount Database!</h1>
 
-  {% if 'email' in cache %}
+  {% if 'email' in session %}
     <a href="Click">Click here</a> to see all the discounts available to you, or
   {% endif %}
     start an advanced <a href="search">search</a>

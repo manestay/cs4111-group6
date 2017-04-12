@@ -27,7 +27,7 @@ class LoginForm(Form):
     return True
 
 class AccountForm(Form):
-  email = StringField('Email Address', [validators.Length(max=30)])
+  email = StringField('Email Address', [validators.Length(max=30), validators.Email()])
   name = StringField('Name', [validators.Length(max=25)])
   school_id = SelectField('School')
   year = RadioField('Year', choices=years)
@@ -59,11 +59,10 @@ class AccountForm(Form):
 
 
 class UpdateAccountForm(Form): #like previous, but data not required
-  email = StringField('Email Address')
-  name = StringField('Name')
+  email = StringField('Email Address',[validators.Optional(), validators.Length(max=30), validators.Email()])
+  name = StringField('Name', [validators.Optional(), validators.Length(max=25)])
   school_id = SelectField('School')
   year = SelectField('Year', choices=years)
-  user_id = StringField('User ID')
   password = PasswordField('Password (plaintext, not secure)', [
       validators.EqualTo('confirm', message='Passwords must match')
   ])
@@ -85,11 +84,6 @@ class UpdateAccountForm(Form): #like previous, but data not required
         conn.close()
         return False
 
-    res1 = conn.execute("SELECT U.uid FROM users_belong_to U WHERE U.uid = '{}'".format(self.user_id.data))
-    if res1.rowcount == 1:
-        self.user_id.errors.append('user id taken')
-        conn.close()
-        return False
     conn.close()
     return True
 

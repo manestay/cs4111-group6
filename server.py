@@ -1,6 +1,6 @@
 import os
 from forms import *
-from flask import Flask, request, render_template, g, redirect, Response, flash, url_for
+from flask import Flask, request, session, render_template, g, redirect, Response, flash, url_for
 from sqlalchemy import *
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -9,7 +9,7 @@ app.secret_key = "i love db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://bl2557:sealion6@104.196.135.151/proj1part2'
 engine = create_engine('postgresql://bl2557:sealion6@104.196.135.151/proj1part2')
-cache = {} # store logged in user credentials
+#session = {} # store logged in user credentials
 
 @app.before_request
 def before_request():
@@ -29,8 +29,8 @@ def teardown_request(exception):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-  global cache
-  if 'email' in cache:
+  global session
+  if 'email' in session:
     flash('You are already logged in.')
     return redirect(url_for('index'))
 
@@ -48,7 +48,7 @@ def login():
                            "U.uid='{}'".format(u[0]))
     s = s_query.first()
                            
-    cache.update({'uid': u[0], 'name': u[1], 'year': u[2], 'sid': u[3],
+    session.update({'uid': u[0], 'name': u[1], 'year': u[2], 'sid': u[3].strip(),
                   'email': u[4], 'school': s[0], 'password': u[5]})
     flash('you have successfully logged in')
     return redirect(url_for('index'))
@@ -57,19 +57,19 @@ def login():
 
 @app.route('/logout')
 def logout():
-  global cache
-  if 'email' in cache:
+  global session
+  if 'email' in session:
     flash('You have logged out.')
     removed_keys = ('uid', 'year', 'sid', 'email', 'school')
-    for k in removed_keys: cache.pop(k, None)
+    for k in removed_keys: session.pop(k, None)
   else:
     flash('Not logged in yet.')
   return redirect(url_for('index'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-  global cache
-  if 'email' in cache:
+  global session
+  if 'email' in session:
     flash('You are already logged in. Please log out before registering another account.')
     return redirect(url_for('index'))
 
@@ -88,13 +88,30 @@ def register():
         "VALUES ('{}','{}','{}','{}','{}','{}')".format(
         user_id, name, year, school_id, email, password))
                            
-    cache.update({'uid':user_id, 'name':name, 'year': year,
+    session.update({'uid':user_id, 'name':name, 'year': year,
                   'sid': school_id, 'email': email, 'password': password})
     flash('you have succesfully registered, and are logged in')
     return redirect(url_for('/'))
   return render_template('registration.html', form=form)
 
-
+@app.route('/establishment')
+def establishment():
+    eid = request.args.get('eid')
+    ename = g.conn.execute("SELECT E.ename FROM Establishments E WHERE E.eid='{}'".format(eid)).first()[0]
+    print ename
+    l, d = [], []
+    res = g.conn.execute("SELECT L.address, L.url FROM locations_situated_in L "
+                         "JOIN establishments E USING (eid) WHERE (E.eid = '{}')".format(eid))
+    for i in res: l.append(i)
+    q = process_query(
+        "SELECT original_price, student_price, ongoing, notes, sname "
+        "FROM discounts_offered D JOIN fixed_val_discounts F USING (did) "
+        "JOIN benefit_from B using(did) JOIN schools S using (sid) WHERE D.eid = '{}'".format(eid))
+    res1 = g.conn.execute(q)
+    for i in res1: d.append(i)
+    
+    return render_template("establishment.html", locations=l, discounts=d,ename=ename)
+    
 @app.route('/search', methods=['GET', 'POST'])
 def search():
   form = SearchForm()
@@ -109,37 +126,43 @@ def search():
 
 @app.route('/account', methods=['GET', 'POST'])
 def account():
-  if not 'email' in cache:
+  if not 'email' in session:
     flash('You must be logged in to manage your account.')
     return redirect(url_for('index'))
     
   form = UpdateAccountForm(request.form)
   res = g.conn.execute("SELECT S.sid, S.sname FROM schools S")
-  form.school_id.choices = [('','')] + [(s[0],s[1]) for s in res]
-  form.year.choices = [('','')] + form.year.choices
+  form.school_id.choices = [(s[0],s[1]) for s in res]
+  form.year.choices = form.year.choices
+  
   if request.method == 'POST' and form.validate():
-    email = form.email.data or cache['email']
-    name = form.name.data or cache['name']
-    year = form.year.data or cache['year']
-    password = form.new_password.data or cache['password']
-    school_id = form.school_id.data or cache['sid']
+    email = form.email.data or session['email']
+    name = form.name.data or session['name']
+    year = form.year.data or session['year']
+    password = form.new_password.data or session['password']
+    school_id = form.school_id.data or session['sid']
     
     for pair in form.school_id.choices:
-      if pair[0] == school_id: cache['school'] = pair[1]
+      if pair[0] == school_id: session['school'] = pair[1]
     g.conn.execute("UPDATE users_belong_to SET (uname, email, year, sid, password) = "
-        "('{}','{}','{}','{}','{}') WHERE uid='{}'".format(name, email, year, school_id, password,cache['uid']))
-    cache.update({'name':name, 'year': year,
+        "('{}','{}','{}','{}','{}') WHERE uid='{}'".format(name, email, year, school_id, password,session['uid']))
+    session.update({'name':name, 'year': year,
                   'sid': school_id, 'email': email, 'password':password})
     flash('successfully updated account information')
     return redirect(url_for('account'))
-  return render_template('account.html', cache=cache, form=form)
+  return render_template('account.html', session=session, form=form)
 
 @app.route('/')
 def index():
   cursor = g.conn.execute("SELECT * FROM users_belong_to")
   
-  return render_template("index.html", cache=cache)
+  return render_template("index.html", session=session)
 
+def process_query(string): # for logged in users, restrict to only their schools
+    if not 'email' in session: return string
+    s = string.replace('WHERE ', "WHERE B.sid = '{}' AND ".format(session['sid']))
+    return s
+    
 if __name__ == "__main__":
   import click
 
