@@ -1,0 +1,23 @@
+{% from "_formhelpers.html" import render_field %}
+<h1>Account Information</h1>
+{% extends "layout.html" %}
+{% block body %}
+    <b>Name:</b> {{cache['name'] | safe }} <br>
+    <b>Email:</b> {{cache['email'] | safe }} <br>
+    <b>School:</b> {{cache['school'] | safe }} <br>
+    <b>Year:</b> {{cache['year'] | safe}} <br>
+    
+<h1>Update Your Information</h1>
+<form method=post>
+  <dl>
+    {{ render_field(form.name) }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.user_id) }}
+    {{ render_field(form.year) }}
+    {{ render_field(form.school_id) }}
+    {{ render_field(form.new_password) }}
+    {{ render_field(form.new_confirm) }}
+  </dl>
+  <p><input type=submit value=Update>
+</form>
+{% endblock %}

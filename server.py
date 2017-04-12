@@ -1,5 +1,5 @@
 import os
-from forms import LoginForm, RegistrationForm, SearchForm
+from forms import *
 from flask import Flask, request, render_template, g, redirect, Response, flash, url_for
 from sqlalchemy import *
 
@@ -42,14 +42,14 @@ def login():
     u_query = g.conn.execute("SELECT * FROM users_belong_to U "
                            "WHERE U.email = '{}'".format(email))
     u = u_query.first()
-    '''s_query = g.conn.execute("SELECT S.sname, S.sid "
+    s_query = g.conn.execute("SELECT S.sname, S.sid "
                            "FROM schools S, users_belong_to U "
                            "WHERE U.sid = S.sid AND "
                            "U.uid='{}'".format(u[0]))
-    s = s_query.first()'''
+    s = s_query.first()
                            
     cache.update({'uid': u[0], 'name': u[1], 'year': u[2], 'sid': u[3],
-                  'email': u[4]}) #'school': s[0]})
+                  'email': u[4], 'school': s[0], 'password': u[5]})
     flash('you have successfully logged in')
     return redirect(url_for('index'))
   return render_template('login.html', form=form)
@@ -73,7 +73,7 @@ def register():
     flash('You are already logged in. Please log out before registering another account.')
     return redirect(url_for('index'))
 
-  form = RegistrationForm(request.form)
+  form = AccountForm(request.form)
   res = g.conn.execute("SELECT S.sid, S.sname FROM schools S")
   form.school_id.choices = [(s[0],s[1]) for s in res]
   if request.method == 'POST' and form.validate():
@@ -89,7 +89,7 @@ def register():
         user_id, name, year, school_id, email, password))
                            
     cache.update({'uid':user_id, 'name':name, 'year': year,
-                  'sid': school_id, 'email': email})
+                  'sid': school_id, 'email': email, 'password': password})
     flash('you have succesfully registered, and are logged in')
     return redirect(url_for('/'))
   return render_template('registration.html', form=form)
@@ -104,22 +104,41 @@ def search():
   form.category.choices = [('','all categories')] + [(s[0],s[0]) for s in res1]
   return render_template('search.html', form=form)
   
-    
   if request.method == 'POST' and form.validate():
     pass
-  
+
+@app.route('/account', methods=['GET', 'POST'])
+def account():
+  if not 'email' in cache:
+    flash('You must be logged in to manage your account.')
+    return redirect(url_for('index'))
+    
+  form = UpdateAccountForm(request.form)
+  res = g.conn.execute("SELECT S.sid, S.sname FROM schools S")
+  form.school_id.choices = [('','')] + [(s[0],s[1]) for s in res]
+  form.year.choices = [('','')] + form.year.choices
+  if request.method == 'POST' and form.validate():
+    email = form.email.data or cache['email']
+    name = form.name.data or cache['name']
+    year = form.year.data or cache['year']
+    password = form.new_password.data or cache['password']
+    school_id = form.school_id.data or cache['sid']
+    
+    for pair in form.school_id.choices:
+      if pair[0] == school_id: cache['school'] = pair[1]
+    g.conn.execute("UPDATE users_belong_to SET (uname, email, year, sid, password) = "
+        "('{}','{}','{}','{}','{}') WHERE uid='{}'".format(name, email, year, school_id, password,cache['uid']))
+    cache.update({'name':name, 'year': year,
+                  'sid': school_id, 'email': email, 'password':password})
+    flash('successfully updated account information')
+    return redirect(url_for('account'))
+  return render_template('account.html', cache=cache, form=form)
 
 @app.route('/')
 def index():
   cursor = g.conn.execute("SELECT * FROM users_belong_to")
-  users = []
-  ''''for result in cursor:
-    users.append(result)  # can also be accessed using result[0]
-  cursor.close()'''
   
-  context = dict(data = users)
-  
-  return render_template("index.html", cache=cache, **context)
+  return render_template("index.html", cache=cache)
 
 if __name__ == "__main__":
   import click

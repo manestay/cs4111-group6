@@ -26,7 +26,7 @@ class LoginForm(Form):
     conn.close()
     return True
 
-class RegistrationForm(Form):
+class AccountForm(Form):
   email = StringField('Email Address', [validators.Length(max=30)])
   name = StringField('Name', [validators.Length(max=25)])
   school_id = SelectField('School')
@@ -41,7 +41,7 @@ class RegistrationForm(Form):
   def validate(self):
     from server import engine
     conn = engine.connect()
-    if not super(RegistrationForm, self).validate():
+    if not super(AccountForm, self).validate():
         return False
     res = conn.execute("SELECT U.email FROM users_belong_to U WHERE U.email = '{}'".format(self.email.data))
     if res.rowcount == 1:
@@ -56,6 +56,43 @@ class RegistrationForm(Form):
         return False
     conn.close()
     return True
+
+
+class UpdateAccountForm(Form): #like previous, but data not required
+  email = StringField('Email Address')
+  name = StringField('Name')
+  school_id = SelectField('School')
+  year = SelectField('Year', choices=years)
+  user_id = StringField('User ID')
+  password = PasswordField('Password (plaintext, not secure)', [
+      validators.EqualTo('confirm', message='Passwords must match')
+  ])
+  confirm = PasswordField('Repeat Password')
+  
+  new_password = PasswordField('Password (plaintext, not secure)', [
+      validators.EqualTo('new_confirm', message='Passwords must match')
+  ])
+  new_confirm = PasswordField('Repeat Password')
+  
+  def validate(self):
+    from server import engine
+    conn = engine.connect()
+    if not super(UpdateAccountForm, self).validate():
+        return False
+    res = conn.execute("SELECT U.email FROM users_belong_to U WHERE U.email = '{}'".format(self.email.data))
+    if res.rowcount == 1:
+        self.email.errors.append('email already exists')          
+        conn.close()
+        return False
+
+    res1 = conn.execute("SELECT U.uid FROM users_belong_to U WHERE U.uid = '{}'".format(self.user_id.data))
+    if res1.rowcount == 1:
+        self.user_id.errors.append('user id taken')
+        conn.close()
+        return False
+    conn.close()
+    return True
+
 
 class SearchForm(Form): #for advanced search
   school_id = SelectField('School')

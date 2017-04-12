@@ -8,18 +8,18 @@
 {% extends "layout.html" %}
 {% block body %}
   {% if 'email' in cache %}
-    {{'you are logged in as {}'.format(cache) | safe }}
-    <p><a href="logout">Logout</a></p>
+    {{'you are logged in as {}'.format(cache['name']) | safe }}
+    <a href="account"> Manage Account</a> |
+    <a href="logout">Logout</a>
   {% else %}
     <p>Go to the <a href="login">login</a> page, or <a href="register">register</a> </p>
   {% endif %}
-  <h1>Some famous Computer Scientists</h1>
+  <h1>Welcome to the Student Discount Database!</h1>
 
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
-    {% endfor %}
-  </div>
+  {% if 'email' in cache %}
+    <a href="Click">Click here</a> to see all the discounts available to you, or
+  {% endif %}
+    start an advanced <a href="search">search</a>
 
 {% endblock %}
 
