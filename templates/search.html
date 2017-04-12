@@ -1,0 +1,18 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "layout.html" %}
+{% block body %}
+
+<form method=post>
+  <dl>
+    <p>      
+       {{ render_field(form.school_id) }}
+       {{ render_field(form.category) }}
+       {{ render_field(form.show) }}
+       {{ render_field(form.check) }}
+    </p>
+  </dl>
+  <p><input type=submit value=Search>
+</form>
+
+<p><a href="/">Go back to the index</a></p>
+{% endblock %}

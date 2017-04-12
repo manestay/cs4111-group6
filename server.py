@@ -1,5 +1,5 @@
 import os
-from forms import LoginForm, RegistrationForm
+from forms import LoginForm, RegistrationForm, SearchForm
 from flask import Flask, request, render_template, g, redirect, Response, flash, url_for
 from sqlalchemy import *
 
@@ -74,7 +74,8 @@ def register():
     return redirect(url_for('index'))
 
   form = RegistrationForm(request.form)
-  
+  res = g.conn.execute("SELECT S.sid, S.sname FROM schools S")
+  form.school_id.choices = [(s[0],s[1]) for s in res]
   if request.method == 'POST' and form.validate():
     email = form.email.data
     user_id = form.user_id.data
@@ -92,16 +93,32 @@ def register():
     flash('you have succesfully registered, and are logged in')
     return redirect(url_for('/'))
   return render_template('registration.html', form=form)
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+  form = SearchForm()
+  res = g.conn.execute("SELECT S.sid, S.sname FROM schools S")
+  res1 = g.conn.execute("SELECT C.cname FROM categories C")
+  form.school_id.choices = [('','any school')] + [(s[0],s[1]) for s in res]
+  form.category.choices = [('','all categories')] + [(s[0],s[0]) for s in res1]
+  return render_template('search.html', form=form)
   
+    
+  if request.method == 'POST' and form.validate():
+    pass
+  
+
 @app.route('/')
 def index():
   cursor = g.conn.execute("SELECT * FROM users_belong_to")
   users = []
-  for result in cursor:
+  ''''for result in cursor:
     users.append(result)  # can also be accessed using result[0]
-  cursor.close()
+  cursor.close()'''
   
   context = dict(data = users)
+  
   return render_template("index.html", cache=cache, **context)
 
 if __name__ == "__main__":
