@@ -148,30 +148,55 @@ def results():
     sid = request.args.get('sid') 
     cid = request.args.get('cid') 
     free = request.args.get('free')
-    query = "SELECT E2.ename FROM Establishments E2 NATURAL JOIN Discounts_Offered D"
+    r,r1 = [], []
+    query = "SELECT DISTINCT * FROM Establishments E2 NATURAL JOIN Discounts_Offered D"
     if (sid):
       query += " NATURAL JOIN benefit_from B NATURAL JOIN Schools S"
       sid = "'" + sid + "'"
     if (cid):
       query += " NATURAL JOIN categories C NATURAL JOIN fall_under F"
       cid = "'" + cid + "'"
-    if(free==True):
-      query += " NATURAL JOIN fixed_val_discounts FV WHERE FV.free = 't'"
-    if(sid and cid):
-      query += " WHERE S.sid=" + sid + " AND C.cid=" + cid
-    elif(sid):
-      query += " WHERE S.sid=" + sid
-    elif(cid):
-      query += " WHERE C.cid=" + cid
-    print(query)
-    r = []
-    ename = g.conn.execute(query)
+    query += " NATURAL JOIN fixed_val_discounts FV WHERE"
+    
+    if(free):
+      query += " FV.free = 't'"
+    if(sid):
+      if query[-5:] != 'WHERE': query += ' AND'
+      query += " S.sid=" + sid
+    if(cid):
+      if query[-5:] != 'WHERE': query += ' AND'
+      query += " C.cname=" + cid
+    if query[-5:] == 'WHERE': query = query.replace('WHERE', '')
+    
+    if free !='True':
+        query1 = "SELECT DISTINCT * FROM Establishments E2 NATURAL JOIN Discounts_Offered D"
+        if (sid):
+          query1 += " NATURAL JOIN benefit_from B NATURAL JOIN Schools S"
+          sid = "'" + sid + "'"
+        if (cid):
+          query1 += " NATURAL JOIN categories C NATURAL JOIN fall_under F"
+          cid = "'" + cid + "'"
+        query1 += " NATURAL JOIN percentage_discounts P WHERE"
+        
+        if(sid):
+          if query1[-5:] != 'WHERE': query1 += ' AND'
+          query1 += " S.sid=" + sid
+        if(cid):
+          if query1[-5:] != 'WHERE': query1 += ' AND'
+          query1 += " C.cname=" + cid
+        if query1[-5:] == 'WHERE': query1 = query1.replace('WHERE', '')
+    
+        per = g.conn.execute(query1)
+        for i in per: r1.append(i)
+        
+    fv = g.conn.execute(query)
     # for row in ename:
     #   print row
     
-    for i in ename: r.append(i)
+    for i in fv: r.append(i)
+    print r1, "dsjkfhdsfjs"
     
-    return render_template("results.html", results = r)
+    return render_template("results.html", results = r, results1 = r1)
 
 
 @app.route('/account', methods=['GET', 'POST'])

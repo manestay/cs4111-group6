@@ -2,10 +2,17 @@
 {% block body %}
 <h2>Results</h2>
   <div>
+    Fixed Value Discounts
     {% for r in results %}
     <div>{{r}}</div>
     {% endfor %}
+    {% if results1 %}
+    Percent Discounts
+    {% for r in results1 %}
+    <div>{{r}}</div>
+    {% endfor %}
+    {% endif %}
   </div>
   
-<div><a href= {{url_for('results')}}></a></div>
+<p><a href="/">Go back to results</a></p>
 {% endblock %}
