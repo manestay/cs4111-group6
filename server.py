@@ -99,7 +99,7 @@ def establishment():
     eid = request.args.get('eid')
     ename = g.conn.execute("SELECT E.ename FROM Establishments E WHERE E.eid='{}'".format(eid)).first()[0]
     print ename
-    l, d = [], []
+    l, f, p = [], [], []
     res = g.conn.execute("SELECT L.address, L.url FROM locations_situated_in L "
                          "JOIN establishments E USING (eid) WHERE (E.eid = '{}')".format(eid))
     for i in res: l.append(i)
@@ -107,11 +107,31 @@ def establishment():
         "SELECT original_price, student_price, ongoing, notes, sname "
         "FROM discounts_offered D JOIN fixed_val_discounts F USING (did) "
         "JOIN benefit_from B using(did) JOIN schools S using (sid) WHERE D.eid = '{}'".format(eid))
+    q1 = process_query(
+        "SELECT percent, ongoing, notes, sname "
+        "FROM discounts_offered D JOIN percentage_discounts P USING (did) "
+        "JOIN benefit_from B using(did) JOIN schools S using (sid) WHERE D.eid = '{}'".format(eid))
     res1 = g.conn.execute(q)
-    for i in res1: d.append(i)
+    res2 = g.conn.execute(q1)
+    for i in res1: f.append(i)
+    for i in res2: p.append(i)
     
-    return render_template("establishment.html", locations=l, discounts=d,ename=ename)
+    return render_template("establishment.html", locations=l, f_discounts=f,p_discounts=p, ename=ename)
+
+@app.route('/list')
+def list():
+  cursor = g.conn.execute("SELECT eid, ename, cname FROM establishments E LEFT OUTER JOIN fall_under using (eid)")
+  est = []
+  for result in cursor:
+    eid = result[0]
+    q = process_query("SELECT * FROM discounts_offered D WHERE D.eid = '{}'".format(eid))
+    discounts = g.conn.execute(q)
+    available = discounts.rowcount
+    est.append([result[0].strip(), result[1], result[2], available])
     
+  cursor.close()
+  return render_template('list.html',est=est)
+  
 @app.route('/search', methods=['GET', 'POST'])
 def search():
   form = SearchForm()
@@ -161,6 +181,8 @@ def index():
 def process_query(string): # for logged in users, restrict to only their schools
     if not 'email' in session: return string
     s = string.replace('WHERE ', "WHERE B.sid = '{}' AND ".format(session['sid']))
+    if 'join schools s' not in s.lower():
+        s = s.replace(' WHERE', " JOIN benefit_from B using(did) JOIN schools S using (sid) WHERE")
     return s
     
 if __name__ == "__main__":

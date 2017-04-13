@@ -1,4 +1,6 @@
 {% extends "layout.html" %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/static/css/templates.css">
 {% block body %}
 <h1>{{ename | safe}}</h1>
 <h2>Locations</h2>
@@ -10,10 +12,15 @@
   
 <h2>Discounts</h2>
   <div>
-    {% for n in discounts %}
+    {% for n in f_discounts %}
+    <div>{{n}}</div>
+    {% endfor %}
+  </div>
+  <div>
+    {% for n in p_discounts %}
     <div>{{n}}</div>
     {% endfor %}
   </div>
   
-<div><a href= {{url_for('establishment', cname = 'dude')}}>{{'hi'}}</a></div>
+<p><a href="list">Go back to the list</a></p>
 {% endblock %}
