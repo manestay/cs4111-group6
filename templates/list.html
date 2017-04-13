@@ -1,16 +1,16 @@
 {% extends "layout.html" %}
 {% block body %}
-
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="/static/css/templates.css">
+<link rel="stylesheet" type="text/css" href="css/styles.css">
+
 <h2>List of Establishments</h2>
   <table>
-    <tr><th>Name</th><th>Category</th><th>Number</th></tr>
+    <tr><th>Name</th><th>Category</th><th>Discounts Offered</th></tr>
     {% for n in est %}
     <tr>
       <td><div><a href= {{url_for('establishment', eid = n[0])}}>{{n[1]}}</a></div></td>
       <td>{{n[2]}}</td>
-      <td>{{n[3]}}</td>
+      <td align="right">{{n[3]}}</td>
       </tr>
     {% endfor %}
   </table>
@@ -18,3 +18,5 @@
 <p><a href="/">Go back to the index</a></p>
 
 {% endblock %}
+
+

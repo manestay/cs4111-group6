@@ -113,8 +113,8 @@ def establishment():
         "JOIN benefit_from B using(did) JOIN schools S using (sid) WHERE D.eid = '{}'".format(eid))
     res1 = g.conn.execute(q)
     res2 = g.conn.execute(q1)
-    for i in res1: f.append(i[0])
-    for i in res2: p.append(i[0])
+    for i in res1: f.append("$" + str(i[0]) + "0 Off")
+    for i in res2: p.append(str(i[0]) + "% Off")
     
     return render_template("establishment.html", locations=l, f_discounts=f,p_discounts=p, ename=ename)
 
@@ -151,7 +151,7 @@ def results():
     sid = request.args.get('sid') 
     cid = request.args.get('cid') 
     free = request.args.get('free')
-    r,r1 = [], []
+    r,r1,e1,e2 = [], [], [], []
     query = "SELECT DISTINCT * FROM Establishments E2 NATURAL JOIN Discounts_Offered D"
     if (sid):
       query += " NATURAL JOIN benefit_from B NATURAL JOIN Schools S"
@@ -187,14 +187,16 @@ def results():
           query1 += " C.cname=" + cid
         if query1[-5:] == 'WHERE': query1 = query1.replace('WHERE', '')
         per = g.conn.execute(query1)
-        for i in per: r1.append(i)
+        for i in per: 
+          r1.append(i[3] + "\t" + i[0] + "% Off")
 
     fv = g.conn.execute(query)
     # for row in ename:
     #   print row
     
-    for i in fv: r.append(i)
-    return render_template("results.html", results = r, results1 = r1)
+    for i in fv: 
+      r.append(i[3] + "\t" + "$" + i[0] + "Off")
+    return render_template("results.html", pval = r, fval = r1)
 
 
 @app.route('/account', methods=['GET', 'POST'])

@@ -1,20 +1,23 @@
 {% extends "layout.html" %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/styles.css">
+
 {% block body %}
 <h2>Results</h2>
-  <div>
-    {% if results %}
-    Fixed Value Discounts
-    {% for r in results %}
-    <div>{{r}}</div>
-    {% endfor %}
-    {% endif %}
-    {% if results1 %}
-    Percent Discounts
-    {% for r in results1 %}
-    <div>{{r}}</div>
-    {% endfor %}
-    {% endif %}
-  </div>
-  
-<p><a href="/">Go back to results</a></p>
+<div>
+  {% if fval %}
+  <h4>Fixed Value Discounts</h4>
+  {% for r in fval %}
+  <div>{{r}}</div>
+  {% endfor %}
+  {% endif %}
+  {% if pval %}
+  <h4>Percentage Discounts</h4>
+  {% for r in pval %}
+  <div>{{r}}</div>
+  {% endfor %}
+  {% endif %}
+</div>
+<br>  
+<p><a href="/search">Do another search</a></p>
 {% endblock %}
