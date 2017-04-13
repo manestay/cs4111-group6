@@ -102,7 +102,7 @@ def establishment():
     l, f, p = [], [], []
     res = g.conn.execute("SELECT L.address, L.url FROM locations_situated_in L "
                          "JOIN establishments E USING (eid) WHERE (E.eid = '{}')".format(eid))
-    for i in res: l.append(i)
+    for i in res: l.append(i[0])
     q = process_query(
         "SELECT original_price, student_price, ongoing, notes, sname "
         "FROM discounts_offered D JOIN fixed_val_discounts F USING (did) "
@@ -113,8 +113,8 @@ def establishment():
         "JOIN benefit_from B using(did) JOIN schools S using (sid) WHERE D.eid = '{}'".format(eid))
     res1 = g.conn.execute(q)
     res2 = g.conn.execute(q1)
-    for i in res1: f.append(i)
-    for i in res2: p.append(i)
+    for i in res1: f.append(i[0])
+    for i in res2: p.append(i[0])
     
     return render_template("establishment.html", locations=l, f_discounts=f,p_discounts=p, ename=ename)
 
@@ -169,7 +169,8 @@ def results():
     # for row in ename:
     #   print row
     
-    for i in ename: r.append(i)
+    for i in ename: 
+      r.append(i[0])
     
     return render_template("results.html", results = r)
 
