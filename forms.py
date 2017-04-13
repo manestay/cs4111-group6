@@ -1,5 +1,4 @@
-from wtforms import Form, RadioField, StringField, PasswordField, SelectField, \
-                    BooleanField, validators
+from wtforms import Form, RadioField, StringField, PasswordField, SelectField, BooleanField, validators
 from wtforms.fields.html5 import IntegerRangeField
 
 schools = [('1','Columbia'),('2','NYU'), ('3','Fordham'),
@@ -91,20 +90,20 @@ class UpdateAccountForm(Form): #like previous, but data not required
 class SearchForm(Form): #for advanced search
   school_id = SelectField('School')
   category = SelectField('Category')
-  show = BooleanField('Also show establishments without active discounts')
-  check = BooleanField('Free discounts only')
-  def validate(self):
-    from server import engine
-    conn = engine.connect()
-    if not super(SearchForm, self).validate():
-      return False
-    res = conn.execute("SELECT U.email FROM users_belong_to U WHERE U.email = '{}' AND U.password"
-                       "='{}'".format(self.email.data, self.password.data))
-    if res.rowcount == 0: # given email and password not in database
-      self.email.errors.append('email and/or password not found')
-      conn.close()
-      return False
-    conn.close()
-    return True
-    
+  check = BooleanField('Free deals only')
+  
+  # redirect to results page
+
+
+
+
+
+
+
+
+
+
+
+
+
 

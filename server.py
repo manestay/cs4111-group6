@@ -134,15 +134,45 @@ def list():
   
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-  form = SearchForm()
+  form = SearchForm(request.form)
   res = g.conn.execute("SELECT S.sid, S.sname FROM schools S")
   res1 = g.conn.execute("SELECT C.cname FROM categories C")
   form.school_id.choices = [('','any school')] + [(s[0],s[1]) for s in res]
   form.category.choices = [('','all categories')] + [(s[0],s[0]) for s in res1]
-  return render_template('search.html', form=form)
-  
   if request.method == 'POST' and form.validate():
-    pass
+    return redirect(url_for('results',sid = form.school_id.data.strip(), cid = form.category.data.strip(), free=form.check.data))
+  return render_template('search.html', form=form)
+
+@app.route('/results')
+def results():
+    sid = request.args.get('sid') 
+    cid = request.args.get('cid') 
+    free = request.args.get('free')
+    query = "SELECT E2.ename FROM Establishments E2 NATURAL JOIN Discounts_Offered D"
+    if (sid):
+      query += " NATURAL JOIN benefit_from B NATURAL JOIN Schools S"
+      sid = "'" + sid + "'"
+    if (cid):
+      query += " NATURAL JOIN categories C NATURAL JOIN fall_under F"
+      cid = "'" + cid + "'"
+    if(free==True):
+      query += " NATURAL JOIN fixed_val_discounts FV WHERE FV.free = 't'"
+    if(sid and cid):
+      query += " WHERE S.sid=" + sid + " AND C.cid=" + cid
+    elif(sid):
+      query += " WHERE S.sid=" + sid
+    elif(cid):
+      query += " WHERE C.cid=" + cid
+    print(query)
+    r = []
+    ename = g.conn.execute(query)
+    # for row in ename:
+    #   print row
+    
+    for i in ename: r.append(i)
+    
+    return render_template("results.html", results = r)
+
 
 @app.route('/account', methods=['GET', 'POST'])
 def account():
