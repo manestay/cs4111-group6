@@ -188,14 +188,14 @@ def results():
         if query1[-5:] == 'WHERE': query1 = query1.replace('WHERE', '')
         per = g.conn.execute(query1)
         for i in per: 
-          r1.append(i[3] + "\t" + i[0] + "% Off")
+          r1.append(i['ename'] + "\t" + i[0] + "% Off" + " " + i['notes'] + " " + i['sname'])
 
     fv = g.conn.execute(query)
     # for row in ename:
     #   print row
     
     for i in fv: 
-      r.append(i[3] + "\t" + "$" + i[0] + "Off")
+      r.append(i['ename'] + "\t" + " Student Price: $" + i[0] + " " + i['notes'] + " " + i['sname'])
     return render_template("results.html", pval = r, fval = r1)
 
 
