@@ -2,12 +2,11 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<form method=get>
+<form method=post>
   <dl>
     <p>      
        {{ render_field(form.school_id) }}
        {{ render_field(form.category) }}
-       {{ render_field(form.show) }}
        {{ render_field(form.check) }}
     </p>
   </dl>

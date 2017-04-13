@@ -90,18 +90,20 @@ class UpdateAccountForm(Form): #like previous, but data not required
 class SearchForm(Form): #for advanced search
   school_id = SelectField('School')
   category = SelectField('Category')
-  show = BooleanField('Also show establishments without active discounts')
   check = BooleanField('Free deals only')
-  print("hello123")
+  
+  # redirect to results page
 
-  def validate(self):
-    from server import engine
-    conn = engine.connect()
-    print("hello")
-    if not super(SearchForm, self).validate():
-      return False
-    res = conn.execute("SELECT E2.ename FROM Establishments E2 NATURAL JOIN Discounts_Offered D NATURAL JOIN benefit_from B NATURAL JOIN Schools S WHERE S.sid = '{}'".format(self.school_id.data))
-    for row in res:
-        print("ename:", row['ename'])
-    conn.close()
-    return True
+
+
+
+
+
+
+
+
+
+
+
+
+
