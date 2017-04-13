@@ -91,7 +91,7 @@ def register():
     session.update({'uid':user_id, 'name':name, 'year': year,
                   'sid': school_id, 'email': email, 'password': password})
     flash('you have succesfully registered, and are logged in')
-    return redirect(url_for('/'))
+    return redirect(url_for('index'))
   return render_template('registration.html', form=form)
 
 @app.route('/establishment')

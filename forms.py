@@ -28,7 +28,7 @@ class AccountForm(Form):
   year = RadioField('Year', choices=years)
   user_id = StringField('User ID', [validators.Length(min=1, max=10)])
   password = PasswordField('Password (plaintext, not secure)', [
-      validators.DataRequired(),
+      validators.Length(min=7),
       validators.EqualTo('confirm', message='Passwords must match')
   ])
   confirm = PasswordField('Repeat Password')
@@ -58,7 +58,7 @@ class UpdateAccountForm(Form): #like previous, but data not required
   name = StringField('Name', [validators.Optional(), validators.Length(max=25)])
   school_id = SelectField('School')
   year = SelectField('Year', choices=years)
-  password = PasswordField('Password (plaintext, not secure)', [
+  password = PasswordField('Password (plaintext, not secure)', [validators.Length(min=7),
       validators.EqualTo('confirm', message='Passwords must match')
   ])
   confirm = PasswordField('Repeat Password')
