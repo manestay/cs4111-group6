@@ -2,10 +2,12 @@
 {% block body %}
 <h2>Results</h2>
   <div>
+    {% if results %}
     Fixed Value Discounts
     {% for r in results %}
     <div>{{r}}</div>
     {% endfor %}
+    {% endif %}
     {% if results1 %}
     Percent Discounts
     {% for r in results1 %}

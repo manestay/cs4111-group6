@@ -134,10 +134,13 @@ def list():
   
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-  form = SearchForm(request.form)
+  if 'sid' in session:
+    form = SearchForm(request.form, school_id = session['sid'])
+  else:
+    form = SearchForm(request.form)
   res = g.conn.execute("SELECT S.sid, S.sname FROM schools S")
   res1 = g.conn.execute("SELECT C.cname FROM categories C")
-  form.school_id.choices = [('','any school')] + [(s[0],s[1]) for s in res]
+  form.school_id.choices = [('','any school')] + [(s[0].strip(),s[1]) for s in res]
   form.category.choices = [('','all categories')] + [(s[0],s[0]) for s in res1]
   if request.method == 'POST' and form.validate():
     return redirect(url_for('results',sid = form.school_id.data.strip(), cid = form.category.data.strip(), free=form.check.data))
@@ -172,10 +175,8 @@ def results():
         query1 = "SELECT DISTINCT * FROM Establishments E2 NATURAL JOIN Discounts_Offered D"
         if (sid):
           query1 += " NATURAL JOIN benefit_from B NATURAL JOIN Schools S"
-          sid = "'" + sid + "'"
         if (cid):
           query1 += " NATURAL JOIN categories C NATURAL JOIN fall_under F"
-          cid = "'" + cid + "'"
         query1 += " NATURAL JOIN percentage_discounts P WHERE"
         
         if(sid):
@@ -185,10 +186,9 @@ def results():
           if query1[-5:] != 'WHERE': query1 += ' AND'
           query1 += " C.cname=" + cid
         if query1[-5:] == 'WHERE': query1 = query1.replace('WHERE', '')
-    
         per = g.conn.execute(query1)
         for i in per: r1.append(i)
-        
+
     fv = g.conn.execute(query)
     # for row in ename:
     #   print row
@@ -203,17 +203,17 @@ def account():
     flash('You must be logged in to manage your account.')
     return redirect(url_for('index'))
     
-  form = UpdateAccountForm(request.form)
+  form = UpdateAccountForm(request.form, school_id = session['sid'], year= session['year'])
   res = g.conn.execute("SELECT S.sid, S.sname FROM schools S")
-  form.school_id.choices = [(s[0],s[1]) for s in res]
-  form.year.choices = form.year.choices
+  form.school_id.choices = [(s[0].strip(),s[1]) for s in res]
   
   if request.method == 'POST' and form.validate():
+    print form.year.data
     email = form.email.data or session['email']
     name = form.name.data or session['name']
-    year = form.year.data or session['year']
+    year = form.year.data
     password = form.new_password.data or session['password']
-    school_id = form.school_id.data or session['sid']
+    school_id = form.school_id.data
     
     for pair in form.school_id.choices:
       if pair[0] == school_id: session['school'] = pair[1]

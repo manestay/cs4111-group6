@@ -1,9 +1,5 @@
 from wtforms import Form, RadioField, StringField, PasswordField, SelectField, BooleanField, validators
 from wtforms.fields.html5 import IntegerRangeField
-
-schools = [('1','Columbia'),('2','NYU'), ('3','Fordham'),
-      ('4','Hunter'), ('5','Brooklyn'), ('6','Baruch'), ('7','Pace'), (8,'Queens'),
-      (9,'Juilliard'), (10,'Parsons')]
 years = [('UG1', 'Freshman'), ('UG2', 'Sophomore'), ('UG3', 'Junior'),
       ('UG4','Senior'), ('G', 'Graduate'), ('PROF', 'Professor')]
     
