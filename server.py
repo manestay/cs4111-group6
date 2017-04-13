@@ -152,9 +152,8 @@ def results():
     cid = request.args.get('cid') 
     free = request.args.get('free')
     r,r1,e1,e2 = [], [], [], []
-    query = "SELECT DISTINCT * FROM Establishments E2 NATURAL JOIN Discounts_Offered D"
+    query = "SELECT DISTINCT * FROM Establishments E2 NATURAL JOIN Discounts_Offered D  NATURAL JOIN benefit_from B NATURAL JOIN Schools S"
     if (sid):
-      query += " NATURAL JOIN benefit_from B NATURAL JOIN Schools S"
       sid = "'" + sid + "'"
     if (cid):
       query += " NATURAL JOIN categories C NATURAL JOIN fall_under F"
@@ -172,9 +171,7 @@ def results():
     if query[-5:] == 'WHERE': query = query.replace('WHERE', '')
     
     if free !='True':
-        query1 = "SELECT DISTINCT * FROM Establishments E2 NATURAL JOIN Discounts_Offered D"
-        if (sid):
-          query1 += " NATURAL JOIN benefit_from B NATURAL JOIN Schools S"
+        query1 = "SELECT DISTINCT * FROM Establishments E2 NATURAL JOIN Discounts_Offered D NATURAL JOIN benefit_from B NATURAL JOIN Schools S"
         if (cid):
           query1 += " NATURAL JOIN categories C NATURAL JOIN fall_under F"
         query1 += " NATURAL JOIN percentage_discounts P WHERE"
@@ -188,8 +185,7 @@ def results():
         if query1[-5:] == 'WHERE': query1 = query1.replace('WHERE', '')
         per = g.conn.execute(query1)
         for i in per: 
-          r1.append(i['ename'] + " " + str(i['percent']) + "% Off" + " " + i['notes'] + " " + i['sname'])
-
+          r1.append("{} {}% Off, Notes: {}, for {}".format(i['ename'], i['percent'], i['notes'] or 'None', i['sname']))
     fv = g.conn.execute(query)
     # for row in ename:
     #   print row
@@ -198,8 +194,8 @@ def results():
       if i['student_price']==0:
         student = 'free'
       else:
-        student = '$' + str(i['student_price'])
-      r.append(i['ename'] + " " + " Student Price: " + student + " " + i['notes'] + " " + i['sname'])
+        student = '${}'.format(i['student_price'])
+      r.append("{} Student Price: {}, Notes: {}, for {}".format(i['ename'], student, i['notes'] or 'None', i['sname']))
     return render_template("results.html", fval = r, pval = r1)
 
 
